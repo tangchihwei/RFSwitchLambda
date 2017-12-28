@@ -78,7 +78,7 @@ def lambda_handler(event, context):
 # smallLightOnly = AlexaHomeApp("only2", "small only", "light2")
 # deskLightOnly = AlexaHomeApp("only3", "desk only", "light3")
 # windowLightOnly = AlexaHomeApp("only4", "window only", "light4")
-bigLight = AlexaHomeApp("light1", "light", "light1")
+bigLight = AlexaHomeApp("switch-001", "light", "light1")
 # smallLight = AlexaHomeApp("light2", "small light", "light2")
 # deskLight = AlexaHomeApp("light3", "desk light", "light3")
 # windowLight = AlexaHomeApp("light4", "window light", "light4")
