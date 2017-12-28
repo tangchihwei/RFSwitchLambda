@@ -21,6 +21,11 @@ class AlexaHomeApp:
             {
                 "type": "AlexaInterface",
                 "interface": "Alexa.PowerController",
+                "version": "3"
+            },
+            {
+                "type": "AlexaInterface",
+                "interface": "Alexa.PowerController",
                 "version": "3",
                 "properties": {
                     "supported": [
