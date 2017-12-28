@@ -68,21 +68,20 @@ def handleDiscovery():
         "payloadVersion": "3"
         "messageId": "5f8a426e-01e4-4cc9-8b79-65f8bd0fd8a4"
     }
-    payload = {
-        }
-    # payload = {"discoveredAppliances": 
-    #     [
-    #         bigLight.__dict__,
-    #         smallLight.__dict__,
-    #         windowLight.__dict__,
-    #         deskLight.__dict__,
-    #         allLights.__dict__, 
-    #         bigLightOnly.__dict__, 
-    #         smallLightOnly.__dict__, 
-    #         windowLightOnly.__dict__, 
-    #         deskLightOnly.__dict__
-    #     ]
-    # }
+
+    payload = {"discoveredAppliances": 
+        [
+            bigLight.__dict__,
+            smallLight.__dict__,
+            windowLight.__dict__,
+            deskLight.__dict__,
+            allLights.__dict__, 
+            bigLightOnly.__dict__, 
+            smallLightOnly.__dict__, 
+            windowLightOnly.__dict__, 
+            deskLightOnly.__dict__
+        ]
+    }
 
     response = {'event':{
         'header': header,
