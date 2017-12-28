@@ -9,7 +9,7 @@ class AlexaHomeApp:
         self.endpointId = applianceId
         self.friendlyName = name
         self.manufacturerName = 'Tang'
-        self.displayCategories = ['SWITCH']
+        self.displayCategories = 'SWITCH'
         self.cookie = {
             "extraDetail1": "optionalDetailForSkillAdapterToReferenceThisDevice",
             "extraDetail2": "There can be multiple entries",
@@ -19,7 +19,7 @@ class AlexaHomeApp:
         }
         self.capabilities = [
         {             
-                "type": "AlexaInterface",
+        		"type": "AlexaInterface",
             "interface": "Alexa.PowerController",
             "version": "3",
             "properties": {
@@ -31,26 +31,46 @@ class AlexaHomeApp:
             }
         },
         {
-                "type": "AlexaInterface",
-                "interface": "Alexa.EndpointHealth",
-                "version": "3",
-                "properties": {
-                "supported":[
-                    { "name":"connectivity" }
-                ],
+        		"type": "AlexaInterface",
+        		"interface": "Alexa.EndpointHealth",
+        		"version": "3",
+        		"properties": {
+            	"supported":[
+              		{ "name":"connectivity" }
+            	],
             "proactivelyReported": True,
             "retrievable": True
-                }
+				}
         },
         {
-                "type": "AlexaInterface",
-                "interface": "Alexa",
-                "version": "3"
+        		"type": "AlexaInterface",
+        		"interface": "Alexa",
+        		"version": "3"
         }
     ]
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
+
+SAMPLE_APPLIANCES = [
+    {
+        "applianceId": "endpoint-001",
+        "manufacturerName": "Sample Manufacturer",
+        "modelName": "Smart Switch",
+        "version": "1",
+        "friendlyName": "Switch",
+        "friendlyDescription": "001 Switch that can only be turned on/off",
+        "isReachable": True,
+        "actions": [
+            "turnOn",
+            "turnOff"
+        ],
+        "additionalApplianceDetails": {
+            "detail1": "For simplicity, this is the only appliance",
+            "detail2": "that has some values in the additionalApplianceDetails"
+        }
+    }
+]
 
 # The function that Lambad will call to handle any events.
 def lambda_handler(event, context):
@@ -95,12 +115,48 @@ RF_MAP = {"light1": LIGHT1,
 def get_uuid():
     return str(uuid.uuid4())
 
+def get_display_categories_from_v2_appliance(appliance):
+    model_name = appliance["modelName"]
+    if model_name == "Smart Switch": displayCategories = ["SWITCH"]
+    elif model_name == "Smart Light": displayCategories = ["LIGHT"]
+    elif model_name == "Smart White Light": displayCategories = ["LIGHT"]
+    elif model_name == "Smart Thermostat": displayCategories = ["THERMOSTAT"]
+    elif model_name == "Smart Lock": displayCategories = ["SMARTLOCK"]
+    elif model_name == "Smart Scene": displayCategories = ["SCENE_TRIGGER"]
+    elif model_name == "Smart Activity": displayCategories = ["ACTIVITY_TRIGGER"]
+    elif model_name == "Smart Camera": displayCategories = ["CAMERA"]
+    else: displayCategories = ["OTHER"]
+    return displayCategories
+
+def get_endpoint_from_v2_appliance(appliance):
+    endpoint = {
+        "endpointId": appliance["applianceId"],
+        "manufacturerName": appliance["manufacturerName"],
+        "friendlyName": appliance["friendlyName"],
+        "description": appliance["friendlyDescription"],
+        "displayCategories": [],
+        "cookie": appliance["additionalApplianceDetails"],
+        "capabilities": []
+    }
+    endpoint["displayCategories"] = get_display_categories_from_v2_appliance(appliance)
+    endpoint["capabilities"] = get_capabilities_from_v2_appliance(appliance)
+    return endpoint
+
 # This function return all the devices in a JSON body.
 # see document in https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#discovery-messages
 def handleDiscovery():
     endpoints = []
-    endpoints.append(bigLight.__dict__)
-    response ={
+    for appliance in SAMPLE_APPLIANCES:
+        endpoints.append(get_endpoint_from_v2_appliance(appliance))
+    print "new end points list"
+    print endpoints
+    print "end new endpoints"
+
+    print "old end points"
+    print bigLight.__dict__
+    print "end old endpoints"
+
+    response = {
         "event": {
             "header": {
                 "namespace": "Alexa.Discovery",
@@ -109,7 +165,7 @@ def handleDiscovery():
                 "messageId": get_uuid()
             },
             "payload": {
-                "endpoints": endpoints
+                "endpoints": bigLight.__dict__
             }
         }
     }
@@ -162,3 +218,38 @@ def send_request_batch(frequency_list):
     url = base_url + "/rf?frequency=" + ','.join(frequency_list)
     urllib2.urlopen(url)
 
+
+def get_capabilities_from_v2_appliance(appliance):
+
+    capabilities = [
+        {             
+        		"type": "AlexaInterface",
+            "interface": "Alexa.PowerController",
+            "version": "3",
+            "properties": {
+                "supported": [
+                    { "name": "powerState" }
+                ],
+            "proactivelyReported": True,
+            "retrievable": True
+            }
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa.EndpointHealth",
+        		"version": "3",
+        		"properties": {
+            	"supported":[
+              		{ "name":"connectivity" }
+            	],
+            "proactivelyReported": True,
+            "retrievable": True
+				}
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa",
+        		"version": "3"
+        }
+    ]
+    return capabilities
