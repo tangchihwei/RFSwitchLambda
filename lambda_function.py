@@ -29,24 +29,24 @@ class AlexaHomeApp:
                             "name": "powerState"
                         }
                     ],
-                    "proactivelyReported": "true",
-                    "retrievable": "true"
+                    "proactivelyReported": True,
+                    "retrievable": True
+                }
+            },
+            {
+                "type": "AlexaInterface",
+                "interface": "Alexa.EndpointHealth",
+                "version": "3",
+                "properties": {
+                    "supported": [
+                        {
+                            "name": "connectivity"
+                        }
+                    ],
+                    "proactivelyReported":True,
+                    "retrievable": True
                 }
             }
-            # ,
-            # {
-            #     "type": "AlexaInterface",
-            #     "interface": "Alexa.EndpointHealth",
-            #     "version": "3",
-            #     "properties": {
-            #         "supported": [
-            #             {
-            #                 "name": "connectivity"
-            #             }
-            #         ],
-            #         "proactivelyReported": true,
-            #         "retrievable": true                
-            # }
         ]
 
         # self.modelName = 'model 01'
@@ -69,15 +69,15 @@ def lambda_handler(event, context):
     elif eventname == 'Alexa.ConnectedHome.Control':
         return handleControl(event) 
 
-bigLightOnly = AlexaHomeApp("only1", "light only", "light1")
-smallLightOnly = AlexaHomeApp("only2", "small only", "light2")
-deskLightOnly = AlexaHomeApp("only3", "desk only", "light3")
-windowLightOnly = AlexaHomeApp("only4", "window only", "light4")
+# bigLightOnly = AlexaHomeApp("only1", "light only", "light1")
+# smallLightOnly = AlexaHomeApp("only2", "small only", "light2")
+# deskLightOnly = AlexaHomeApp("only3", "desk only", "light3")
+# windowLightOnly = AlexaHomeApp("only4", "window only", "light4")
 bigLight = AlexaHomeApp("light1", "light", "light1")
-smallLight = AlexaHomeApp("light2", "small light", "light2")
-deskLight = AlexaHomeApp("light3", "desk light", "light3")
-windowLight = AlexaHomeApp("light4", "window light", "light4")
-allLights = AlexaHomeApp("light1234", "all the lights", "light1234")
+# smallLight = AlexaHomeApp("light2", "small light", "light2")
+# deskLight = AlexaHomeApp("light3", "desk light", "light3")
+# windowLight = AlexaHomeApp("light4", "window light", "light4")
+# allLights = AlexaHomeApp("light1234", "all the lights", "light1234")
 
 base_url = os.environ['BASE_URL']
 RF1_ON = os.environ['RF1_ON']
@@ -117,14 +117,14 @@ def handleDiscovery():
     payload = {"endpoints": 
         [
             bigLight.__dict__,
-            smallLight.__dict__,
-            windowLight.__dict__,
-            deskLight.__dict__,
-            allLights.__dict__, 
-            bigLightOnly.__dict__, 
-            smallLightOnly.__dict__, 
-            windowLightOnly.__dict__, 
-            deskLightOnly.__dict__
+            # smallLight.__dict__,
+            # windowLight.__dict__,
+            # deskLight.__dict__,
+            # allLights.__dict__, 
+            # bigLightOnly.__dict__, 
+            # smallLightOnly.__dict__, 
+            # windowLightOnly.__dict__, 
+            # deskLightOnly.__dict__
         ]
     }
 
@@ -132,6 +132,9 @@ def handleDiscovery():
         'header': header,
         'payload': payload
     }}
+    print "discovery response"
+    print response
+    print "printed disc resp"
     return response
 
 # This is the function to handle the event request. The event will be generated when you talk to Alexa Echo with a valid request.
