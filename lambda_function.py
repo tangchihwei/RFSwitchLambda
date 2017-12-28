@@ -1,6 +1,7 @@
 import urllib2
 import os
 import json
+import uuid
 
 # Class to define a home device that to be controlled by Alexa. eg. Lamp
 class AlexaHomeApp:
@@ -21,11 +22,6 @@ class AlexaHomeApp:
             {
                 "type": "AlexaInterface",
                 "interface": "Alexa.PowerController",
-                "version": "3"
-            },
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.PowerController",
                 "version": "3",
                 "properties": {
                     "supported": [
@@ -36,20 +32,21 @@ class AlexaHomeApp:
                     "proactivelyReported": "true",
                     "retrievable": "true"
                 }
-            },
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.EndpointHealth",
-                "version": "3",
-                "properties": {
-                    "supported": [
-                        {
-                            "name": "connectivity"
-                        }
-                    ],
-                    "proactivelyReported": true,
-                    "retrievable": true                
             }
+            # ,
+            # {
+            #     "type": "AlexaInterface",
+            #     "interface": "Alexa.EndpointHealth",
+            #     "version": "3",
+            #     "properties": {
+            #         "supported": [
+            #             {
+            #                 "name": "connectivity"
+            #             }
+            #         ],
+            #         "proactivelyReported": true,
+            #         "retrievable": true                
+            # }
         ]
 
         # self.modelName = 'model 01'
@@ -103,6 +100,9 @@ RF_MAP = {"light1": LIGHT1,
           "light3": LIGHT3,
           "light4": LIGHT4, }
 
+def get_uuid():
+    return str(uuid.uuid4())
+
 # This function return all the devices in a JSON body.
 # see document in https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#discovery-messages
 def handleDiscovery():
@@ -110,31 +110,23 @@ def handleDiscovery():
     header = {
         "namespace": "Alexa.Discovery",
         "name": "Discover.Response",
-        "payloadVersion": "3"
-        "messageId": "5f8a426e-01e4-4cc9-8b79-65f8bd0fd8a4"
+        "payloadVersion": "3",
+        "messageId": get_uuid()
     }
 
-    payload = {"endponts": 
+    payload = {"endpoints": 
         [
-
-
+            bigLight.__dict__,
+            smallLight.__dict__,
+            windowLight.__dict__,
+            deskLight.__dict__,
+            allLights.__dict__, 
+            bigLightOnly.__dict__, 
+            smallLightOnly.__dict__, 
+            windowLightOnly.__dict__, 
+            deskLightOnly.__dict__
         ]
-
-
     }
-    # payload = {"discoveredAppliances": 
-    #     [
-    #         bigLight.__dict__,
-    #         smallLight.__dict__,
-    #         windowLight.__dict__,
-    #         deskLight.__dict__,
-    #         allLights.__dict__, 
-    #         bigLightOnly.__dict__, 
-    #         smallLightOnly.__dict__, 
-    #         windowLightOnly.__dict__, 
-    #         deskLightOnly.__dict__
-    #     ]
-    # }
 
     response = {'event':{
         'header': header,
