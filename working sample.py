@@ -8,9 +8,8 @@ class AlexaHomeApp:
     def __init__(self, applianceId, name, id):
         self.endpointId = applianceId
         self.friendlyName = name
-        self.description = 'Smart Light Switch'
         self.manufacturerName = 'Tang'
-        self.displayCategories = 'SMARTPLUG'
+        self.displayCategories = 'SWITCH'
         self.cookie = {
             "extraDetail1": "optionalDetailForSkillAdapterToReferenceThisDevice",
             "extraDetail2": "There can be multiple entries",
@@ -19,35 +18,36 @@ class AlexaHomeApp:
 
         }
         self.capabilities = [
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.PowerController",
-                "version": "3",
-                "properties": {
-                    "supported": [
-                        {
-                            "name": "powerState"
-                        }
-                    ],
-                    "proactivelyReported": True,
-                    "retrievable": True
-                }
-            },
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.EndpointHealth",
-                "version": "3",
-                "properties": {
-                    "supported": [
-                        {
-                            "name": "connectivity"
-                        }
-                    ],
-                    "proactivelyReported":True,
-                    "retrievable": True
-                }
+        {             
+        		"type": "AlexaInterface",
+            "interface": "Alexa.PowerController",
+            "version": "3",
+            "properties": {
+                "supported": [
+                    { "name": "powerState" }
+                ],
+            "proactivelyReported": True,
+            "retrievable": True
             }
-        ]
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa.EndpointHealth",
+        		"version": "3",
+        		"properties": {
+            	"supported":[
+              		{ "name":"connectivity" }
+            	],
+            "proactivelyReported": True,
+            "retrievable": True
+				}
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa",
+        		"version": "3"
+        }
+    ]
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
@@ -85,7 +85,7 @@ def lambda_handler(event, context):
 # smallLightOnly = AlexaHomeApp("only2", "small only", "light2")
 # deskLightOnly = AlexaHomeApp("only3", "desk only", "light3")
 # windowLightOnly = AlexaHomeApp("only4", "window only", "light4")
-bigLight = AlexaHomeApp("light1", "light", "light1")
+bigLight = AlexaHomeApp("endpoint-001", "Switch1", "light1")
 # smallLight = AlexaHomeApp("light2", "small light", "light2")
 # deskLight = AlexaHomeApp("light3", "desk light", "light3")
 # windowLight = AlexaHomeApp("light4", "window light", "light4")
@@ -148,6 +148,13 @@ def handleDiscovery():
     endpoints = []
     for appliance in SAMPLE_APPLIANCES:
         endpoints.append(get_endpoint_from_v2_appliance(appliance))
+    print "new end points list"
+    print endpoints
+    print "end new endpoints"
+
+    print "old end points"
+    print bigLight.__dict__
+    print "end old endpoints"
 
     response = {
         "event": {
@@ -158,7 +165,7 @@ def handleDiscovery():
                 "messageId": get_uuid()
             },
             "payload": {
-                "endpoints": endpoints
+                "endpoints": bigLight.__dict__
             }
         }
     }
@@ -213,57 +220,36 @@ def send_request_batch(frequency_list):
 
 
 def get_capabilities_from_v2_appliance(appliance):
-    model_name = appliance["modelName"]
-    if model_name == 'Smart Switch':
-        capabilities = [
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.PowerController",
-                "version": "3",
-                "properties": {
-                    "supported": [
-                        { "name": "powerState" }
-                    ],
-                    "proactivelyReported": True,
-                    "retrievable": True
-                }
-            }
-        ]
-    else:
-        # in this example, just return simple on/off capability
-        capabilities = [
-            {
-                "type": "AlexaInterface",
-                "interface": "Alexa.PowerController",
-                "version": "3",
-                "properties": {
-                    "supported": [
-                        { "name": "powerState" }
-                    ],
-                    "proactivelyReported": True,
-                    "retrievable": True
-                }
-            }
-        ]
 
-    # additional capabilities that are required for each endpoint
-    endpoint_health_capability = {
-        "type": "AlexaInterface",
-        "interface": "Alexa.EndpointHealth",
-        "version": "3",
-        "properties": {
-            "supported":[
-                { "name":"connectivity" }
-            ],
+    capabilities = [
+        {             
+        		"type": "AlexaInterface",
+            "interface": "Alexa.PowerController",
+            "version": "3",
+            "properties": {
+                "supported": [
+                    { "name": "powerState" }
+                ],
             "proactivelyReported": True,
             "retrievable": True
+            }
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa.EndpointHealth",
+        		"version": "3",
+        		"properties": {
+            	"supported":[
+              		{ "name":"connectivity" }
+            	],
+            "proactivelyReported": True,
+            "retrievable": True
+				}
+        },
+        {
+        		"type": "AlexaInterface",
+        		"interface": "Alexa",
+        		"version": "3"
         }
-    }
-    alexa_interface_capability = {
-        "type": "AlexaInterface",
-        "interface": "Alexa",
-        "version": "3"
-    }
-    capabilities.append(endpoint_health_capability)
-    capabilities.append(alexa_interface_capability)
+    ]
     return capabilities
