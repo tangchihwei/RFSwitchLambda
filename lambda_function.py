@@ -46,6 +46,11 @@ class AlexaHomeApp:
                     "proactivelyReported":True,
                     "retrievable": True
                 }
+            },
+            {
+                "interface": "Alexa",
+                "version": "3",
+                "type": "AlexaInterface"
             }
         ]
 
