@@ -5,15 +5,55 @@ import json
 # Class to define a home device that to be controlled by Alexa. eg. Lamp
 class AlexaHomeApp:
     def __init__(self, applianceId, name, id):
-        self.applianceId = applianceId
-        self.manufacturerName = 'weigao'
-        self.modelName = 'model 01'
-        self.version = '0.1'
-        self.friendlyDescription = 'descriptionThatIsShownToCustomer'
+        self.endpointId = applianceId
         self.friendlyName = name
-        self.isReachable = True
-        self.actions = ["turnOn", "turnOff"]
-        self.additionalApplianceDetails = {'id':id}
+        self.description = 'Smart Light Switch'
+        self.manufacturerName = 'Tang'
+        self.displayCategories = 'SMARTPLUG'
+        self.cookie = {
+            "extraDetail1": "optionalDetailForSkillAdapterToReferenceThisDevice",
+            "extraDetail2": "There can be multiple entries",
+            "extraDetail3": "but they should only be used for reference purposes",
+            "extraDetail4": "This is not a suitable place to maintain current device state"
+
+        }
+        self.capabilities = [
+            {
+                "type": "AlexaInterface",
+                "interface": "Alexa.PowerController",
+                "version": "3",
+                "properties": {
+                    "supported": [
+                        {
+                            "name": "powerState"
+                        }
+                    ],
+                    "proactivelyReported": "true",
+                    "retrievable": "true"
+                }
+            },
+            {
+                "type": "AlexaInterface",
+                "interface": "Alexa.EndpointHealth",
+                "version": "3",
+                "properties": {
+                    "supported": [
+                        {
+                            "name": "connectivity"
+                        }
+                    ],
+                    "proactivelyReported": true,
+                    "retrievable": true                
+            }
+        ]
+
+        # self.modelName = 'model 01'
+        # self.version = '0.1'
+
+
+        # self.isReachable = True
+        # self.actions = ["turnOn", "turnOff"]
+        # self.additionalApplianceDetails = {'id':id}
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
@@ -69,19 +109,27 @@ def handleDiscovery():
         "messageId": "5f8a426e-01e4-4cc9-8b79-65f8bd0fd8a4"
     }
 
-    payload = {"discoveredAppliances": 
+    payload = {"endponts": 
         [
-            bigLight.__dict__,
-            smallLight.__dict__,
-            windowLight.__dict__,
-            deskLight.__dict__,
-            allLights.__dict__, 
-            bigLightOnly.__dict__, 
-            smallLightOnly.__dict__, 
-            windowLightOnly.__dict__, 
-            deskLightOnly.__dict__
+
+
         ]
+
+
     }
+    # payload = {"discoveredAppliances": 
+    #     [
+    #         bigLight.__dict__,
+    #         smallLight.__dict__,
+    #         windowLight.__dict__,
+    #         deskLight.__dict__,
+    #         allLights.__dict__, 
+    #         bigLightOnly.__dict__, 
+    #         smallLightOnly.__dict__, 
+    #         windowLightOnly.__dict__, 
+    #         deskLightOnly.__dict__
+    #     ]
+    # }
 
     response = {'event':{
         'header': header,
