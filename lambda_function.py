@@ -3,13 +3,15 @@ import os
 import json
 import uuid
 
+maxSwitchNum = 5
+
 # Class to define a home device that to be controlled by Alexa. eg. Lamp
-class AlexaHomeApp:
-    def __init__(self, applianceId, name, id):
+class AlexaHomePowerController:
+    def __init__(self, applianceId, name):
         self.endpointId = applianceId
         self.friendlyName = name
         self.manufacturerName = 'Tang'
-        self.displayCategories = ['SWITCH']
+        self.displayCategories = ['SMARTPLUG']
         self.cookie = {
             "extraDetail1": "optionalDetailForSkillAdapterToReferenceThisDevice",
             "extraDetail2": "There can be multiple entries",
@@ -52,24 +54,28 @@ class AlexaHomeApp:
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
+
 # The function that Lambad will call to handle any events.
 def lambda_handler(event, context):
     eventname = {}
     eventname = event['directive']['header']['namespace']
     if eventname == 'Alexa.Discovery':
         return handleDiscovery()
-    elif eventname == 'Alexa.ConnectedHome.Control':
+    else:
         return handleControl(event) 
 
-# bigLightOnly = AlexaHomeApp("only1", "light only", "light1")
-# smallLightOnly = AlexaHomeApp("only2", "small only", "light2")
-# deskLightOnly = AlexaHomeApp("only3", "desk only", "light3")
-# windowLightOnly = AlexaHomeApp("only4", "window only", "light4")
-bigLight = AlexaHomeApp("endpoint-001", "Switch1", "light1")
-# smallLight = AlexaHomeApp("light2", "small light", "light2")
-# deskLight = AlexaHomeApp("light3", "desk light", "light3")
-# windowLight = AlexaHomeApp("light4", "window light", "light4")
-# allLights = AlexaHomeApp("light1234", "all the lights", "light1234")
+RF_Map = [AlexaHomePowerController("endpoint-00"+str(n), "SmartPlug"+str(n) for n in range(1, maxSwitchNum+1)]
+
+print ''.join(RF_Map[0]['friendlyName'])
+
+
+# smart_plug1 = AlexaHomePowerController("endpoint-001", "SmartPlug1")
+# smart_plug2 = AlexaHomePowerController("endpoint-002", "SmartPlug2")
+
+
+
+
+
 
 base_url = os.environ['BASE_URL']
 RF1_ON = os.environ['RF1_ON']
@@ -92,6 +98,8 @@ RF_MAP = {"light1": LIGHT1,
           "light3": LIGHT3,
           "light4": LIGHT4, }
 
+
+
 def get_uuid():
     return str(uuid.uuid4())
 
@@ -99,7 +107,8 @@ def get_uuid():
 # see document in https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#discovery-messages
 def handleDiscovery():
     endpoints = []
-    endpoints.append(bigLight.__dict__)
+    endpoints.append(smart_plug1.__dict__)
+    endpoints.append(smart_plug2.__dict__)
     response ={
         "event": {
             "header": {
@@ -118,10 +127,12 @@ def handleDiscovery():
 # This is the function to handle the event request. The event will be generated when you talk to Alexa Echo with a valid request.
 # See https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#onoff-messages
 def handleControl(event):
-    on = RF_ON
-    name = "TurnOnConfirmation"
+    # on = RF_ON
+    # name = "TurnOnConfirmation"
 
-    event_name = event['header']['name']
+    event_type = event['directive']['header']['namespace']
+    event_name = event['directive']['header']['name']
+
     if event_name == 'TurnOnRequest':
         on = RF_ON
         name = "TurnOnConfirmation"
