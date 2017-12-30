@@ -64,18 +64,20 @@ def lambda_handler(event, context):
     else:
         return handleControl(event) 
 
-RF_Map = [AlexaHomePowerController("endpoint-00"+str(n), "SmartPlug"+str(n) for n in range(1, maxSwitchNum+1)]
+smart_plug_list = []
+rf_control_list = []
+for i in range(maxSwitchNum):
+    endpoint_id = "endpoint-00" + str(i+1)
+    smart_plug_list.append(AlexaHomePowerController(endpoint_id, "SmartPlug" + str(i+1)))
+    rf_control_list.append({
+        endpoint_id:[
+        "on": os.environ["RF" + str(i+1) + "_ON"],
+        "off": os.environ["RF" + str(i+1) + "_OFF"]
+        ]
+    }
+        )
 
-print ''.join(RF_Map[0]['friendlyName'])
-
-
-# smart_plug1 = AlexaHomePowerController("endpoint-001", "SmartPlug1")
-# smart_plug2 = AlexaHomePowerController("endpoint-002", "SmartPlug2")
-
-
-
-
-
+print rf_control_list[0]["on"]
 
 base_url = os.environ['BASE_URL']
 RF1_ON = os.environ['RF1_ON']
@@ -93,10 +95,10 @@ LIGHT1 = {RF_ON: RF1_ON, RF_OFF: RF1_OFF}
 LIGHT2 = {RF_ON: RF2_ON, RF_OFF: RF2_OFF}
 LIGHT3 = {RF_ON: RF3_ON, RF_OFF: RF3_OFF}
 LIGHT4 = {RF_ON: RF4_ON, RF_OFF: RF4_OFF}
-RF_MAP = {"light1": LIGHT1,
-          "light2": LIGHT2,
-          "light3": LIGHT3,
-          "light4": LIGHT4, }
+# RF_MAP = {"light1": LIGHT1,
+#           "light2": LIGHT2,
+#           "light3": LIGHT3,
+#           "light4": LIGHT4, }
 
 
 
@@ -107,8 +109,8 @@ def get_uuid():
 # see document in https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#discovery-messages
 def handleDiscovery():
     endpoints = []
-    endpoints.append(smart_plug1.__dict__)
-    endpoints.append(smart_plug2.__dict__)
+    # endpoints.append(smart_plug3.__dict__)
+    # endpoints.append(smart_plug2.__dict__)
     response ={
         "event": {
             "header": {
