@@ -87,7 +87,9 @@ def get_uuid():
 def handleDiscovery():
     endpoints = []
     # endpoints.append(smart_plug3.__dict__)
-    # endpoints.append(smart_plug2.__dict__)
+    # endpoints.append(smart_plug_list)
+    for appliance in smart_plug_list:
+        endpoints.append(appliance.__dict__)
     response ={
         "event": {
             "header": {
@@ -108,18 +110,22 @@ def handleDiscovery():
 def handleControl(event):
     # on = RF_ON
     # name = "TurnOnConfirmation"
+    print "event: "+str(event)
 
     event_type = event['directive']['header']['namespace']
     event_name = event['directive']['header']['name']
 
     for appliance in smart_plug_list:
-        if appliance.endpoint_id ==  event['directive']['endpoint']['endpointId']:
-            event_appliance = appliance.endpoint_id
+        if appliance.endpointId ==  event['directive']['endpoint']['endpointId']:
+            event_appliance = appliance.endpointId
             break
 
-    print rf_control_dict[event_appliance][event_name]
+    print "string slice: " + event_name[4:].upper()
 
-
+    # print rf_control_dict[event_appliance][event_name]
+    url = base_url + "/rf?number=" + rf_control_dict[event_appliance][event_name]
+    print "url: " + url
+    urllib2.urlopen(url)
     # if event_name == 'TurnOn':
     #     on = RF_ON
     #     name = "TurnOnConfirmation"
@@ -138,15 +144,19 @@ def handleControl(event):
     #     rf_list.append(RF_MAP[light_id][RF_ON])
     #     send_request_batch(rf_list)
     # else:
-    #     send_request(applianceId, on)
+    #     send_request(applianceId, on) turnon
 
-    header = {
-        "namespace": "Alexa.ConnectedHome.Control",
-        "name": name,
-        "payloadVersion": "2",
-    }
+    context = {
+    "properties": [ {
+      "namespace": "Alexa.PowerController",
+      "name": "powerState",
+      "value": rf_control_dict[event_appliance][event_name][4:],
+      "timeOfSample": "2017-02-03T16:20:50.52Z",
+      "uncertaintyInMilliseconds": 500
+    } ]
+  }
     return {
-        'header': header,
+        'header': context,
         'payload': {}
     }
 
