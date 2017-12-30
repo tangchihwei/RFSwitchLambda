@@ -69,15 +69,26 @@ rf_control_list = []
 for i in range(maxSwitchNum):
     endpoint_id = "endpoint-00" + str(i+1)
     smart_plug_list.append(AlexaHomePowerController(endpoint_id, "SmartPlug" + str(i+1)))
-    rf_control_list.append({
-        endpoint_id:[
-        "on": os.environ["RF" + str(i+1) + "_ON"],
-        "off": os.environ["RF" + str(i+1) + "_OFF"]
-        ]
-    }
-        )
+    rf_control = {endpoint_id:{"on": os.environ["RF" + str(i+1) + "_ON"], "off": os.environ["RF" + str(i+1) + "_OFF"]}}
+    rf_control_list.append(rf_control)
+    # rf_control_list.append(
+    
+    #     endpoint_id:{
+    #     "on": os.environ["RF" + str(i+1) + "_ON"],
+    #     "off": os.environ["RF" + str(i+1) + "_OFF"]
+    #     })
 
-print rf_control_list[0]["on"]
+a = {
+    "c":{"on":123, "off":234}
+}
+
+
+# print a[123]["off"]
+
+# print rf_control_list[0]["on"]
+# a = 1
+# print os.environ["RF" + str(a)+"_ON"]
+
 
 base_url = os.environ['BASE_URL']
 RF1_ON = os.environ['RF1_ON']
