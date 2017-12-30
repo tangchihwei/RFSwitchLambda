@@ -71,34 +71,13 @@ for i in range(maxSwitchNum):
     smart_plug_list.append(AlexaHomePowerController(endpoint_id, "SmartPlug" + str(i+1)))
     rf_control = {
     endpoint_id:{
-        "on": os.environ["RF" + str(i+1) + "_ON"], 
-        "off": os.environ["RF" + str(i+1) + "_OFF"]
+        "TurnOn": os.environ["RF" + str(i+1) + "_ON"], 
+        "TurnOff": os.environ["RF" + str(i+1) + "_OFF"]
         }
     }
     rf_control_dict.update(rf_control)
 
 base_url = os.environ['BASE_URL']
-RF1_ON = os.environ['RF1_ON']
-RF1_OFF = os.environ['RF1_OFF']
-RF2_ON = os.environ['RF2_ON']
-RF2_OFF = os.environ['RF2_OFF']
-RF3_ON = os.environ['RF3_ON']
-RF3_OFF = os.environ['RF3_OFF']
-RF4_ON = os.environ['RF4_ON']
-RF4_OFF = os.environ['RF4_OFF']
-RF_ON = "on"
-RF_OFF = "off"
-
-LIGHT1 = {RF_ON: RF1_ON, RF_OFF: RF1_OFF}
-LIGHT2 = {RF_ON: RF2_ON, RF_OFF: RF2_OFF}
-LIGHT3 = {RF_ON: RF3_ON, RF_OFF: RF3_OFF}
-LIGHT4 = {RF_ON: RF4_ON, RF_OFF: RF4_OFF}
-# RF_MAP = {"light1": LIGHT1,
-#           "light2": LIGHT2,
-#           "light3": LIGHT3,
-#           "light4": LIGHT4, }
-
-
 
 def get_uuid():
     return str(uuid.uuid4())
@@ -133,25 +112,33 @@ def handleControl(event):
     event_type = event['directive']['header']['namespace']
     event_name = event['directive']['header']['name']
 
-    if event_name == 'TurnOnRequest':
-        on = RF_ON
-        name = "TurnOnConfirmation"
-    elif event_name == 'TurnOffRequest':
-        on = RF_OFF
-        name = "TurnOffConfirmation"
+    for appliance in smart_plug_list:
+        if appliance.endpoint_id ==  event['directive']['endpoint']['endpointId']:
+            event_appliance = appliance.endpoint_id
+            break
 
-    applianceId = event['payload']['appliance']['applianceId']
-    if applianceId == allLights.applianceId:
-        rf_list = map(lambda m: m[on], RF_MAP.values())
-        send_request_batch(rf_list)
-    elif applianceId.startswith('only'):
-        rf_list = map(lambda m: m[RF_OFF], RF_MAP.values())
-        light_id = event['payload']['appliance']['additionalApplianceDetails']['id']
-        rf_list.remove(RF_MAP[light_id][RF_OFF])
-        rf_list.append(RF_MAP[light_id][RF_ON])
-        send_request_batch(rf_list)
-    else:
-        send_request(applianceId, on)
+    print rf_control_dict[event_appliance][event_name]
+
+
+    # if event_name == 'TurnOn':
+    #     on = RF_ON
+    #     name = "TurnOnConfirmation"
+    # elif event_name == 'TurnOffRequest':
+    #     on = RF_OFF
+    #     name = "TurnOffConfirmation"
+
+    # applianceId = event['payload']['appliance']['applianceId']
+    # if applianceId == allLights.applianceId:
+    #     rf_list = map(lambda m: m[on], RF_MAP.values())
+    #     send_request_batch(rf_list)
+    # elif applianceId.startswith('only'):
+    #     rf_list = map(lambda m: m[RF_OFF], RF_MAP.values())
+    #     light_id = event['payload']['appliance']['additionalApplianceDetails']['id']
+    #     rf_list.remove(RF_MAP[light_id][RF_OFF])
+    #     rf_list.append(RF_MAP[light_id][RF_ON])
+    #     send_request_batch(rf_list)
+    # else:
+    #     send_request(applianceId, on)
 
     header = {
         "namespace": "Alexa.ConnectedHome.Control",
