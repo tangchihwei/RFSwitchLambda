@@ -2,6 +2,7 @@ import urllib2
 import os
 import json
 import uuid
+import time
 
 maxSwitchNum = 5
 
@@ -82,6 +83,9 @@ base_url = os.environ['BASE_URL']
 def get_uuid():
     return str(uuid.uuid4())
 
+def get_utc_timestamp(seconds=None):
+    return time.strftime("%Y-%m-%dT%H:%M:%S.00Z", time.gmtime(seconds))
+
 # This function return all the devices in a JSON body.
 # see document in https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#discovery-messages
 def handleDiscovery():
@@ -107,16 +111,16 @@ def handleDiscovery():
 
 # This is the function to handle the event request. The event will be generated when you talk to Alexa Echo with a valid request.
 # See https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/smart-home-skill-api-reference#onoff-messages
-def handleControl(event):
+def handleControl(request):
     # on = RF_ON
     # name = "TurnOnConfirmation"
-    print "event: "+str(event)
+    print "event: "+str(request)
 
-    event_type = event['directive']['header']['namespace']
-    event_name = event['directive']['header']['name']
+    event_type = request['directive']['header']['namespace']
+    event_name = request['directive']['header']['name']
 
     for appliance in smart_plug_list:
-        if appliance.endpointId ==  event['directive']['endpoint']['endpointId']:
+        if appliance.endpointId ==  request['directive']['endpoint']['endpointId']:
             event_appliance = appliance.endpointId
             break
 
@@ -126,47 +130,47 @@ def handleControl(event):
     url = base_url + "/rf?number=" + rf_control_dict[event_appliance][event_name]
     print "url: " + url
     urllib2.urlopen(url)
-    # if event_name == 'TurnOn':
-    #     on = RF_ON
-    #     name = "TurnOnConfirmation"
-    # elif event_name == 'TurnOffRequest':
-    #     on = RF_OFF
-    #     name = "TurnOffConfirmation"
-
-    # applianceId = event['payload']['appliance']['applianceId']
-    # if applianceId == allLights.applianceId:
-    #     rf_list = map(lambda m: m[on], RF_MAP.values())
-    #     send_request_batch(rf_list)
-    # elif applianceId.startswith('only'):
-    #     rf_list = map(lambda m: m[RF_OFF], RF_MAP.values())
-    #     light_id = event['payload']['appliance']['additionalApplianceDetails']['id']
-    #     rf_list.remove(RF_MAP[light_id][RF_OFF])
-    #     rf_list.append(RF_MAP[light_id][RF_ON])
-    #     send_request_batch(rf_list)
-    # else:
-    #     send_request(applianceId, on) turnon
 
     context = {
-    "properties": [ {
-      "namespace": "Alexa.PowerController",
-      "name": "powerState",
-      "value": rf_control_dict[event_appliance][event_name][4:],
-      "timeOfSample": "2017-02-03T16:20:50.52Z",
-      "uncertaintyInMilliseconds": 500
-    } ]
-  }
+        "properties": [ 
+            {
+                "namespace": "Alexa.PowerController",
+                "name": "powerState",
+                "value": rf_control_dict[event_appliance][event_name][4:],
+                "timeOfSample": get_utc_timestamp(),
+                "uncertaintyInMilliseconds": 500
+            } 
+        ]
+    }
+    evemt = {
+        "header": {
+            "namespace": "Alexa"
+            "name": "Response"
+            "payloadVersion": "3"
+            "messageId": get_uuid()
+            "correlationToken": request["directive"]["header"]["correlationToken"]
+        }
+    }
+    endpoint = {
+        "scope": {
+            "type": "BearerToken"
+            "token":
+        },
+        "endpointId": request["directive"]["endpoint"]["endpointId"]
+    }
+
     return {
         'header': context,
         'payload': {}
     }
 
-# Send the HTTP request to Raspberry Pi server
-def send_request(id, on):
-    url = base_url + "/rf?frequency=" + RF_MAP[id][on]
-    urllib2.urlopen(url)
+# # Send the HTTP request to Raspberry Pi server
+# def send_request(id, on):
+#     url = base_url + "/rf?frequency=" + RF_MAP[id][on]
+#     urllib2.urlopen(url)
 
-# Since our Raspberry Pi server support batch, this is the command for sending multiple RF transmitter request in one Http Request.
-def send_request_batch(frequency_list):
-    url = base_url + "/rf?frequency=" + ','.join(frequency_list)
-    urllib2.urlopen(url)
+# # Since our Raspberry Pi server support batch, this is the command for sending multiple RF transmitter request in one Http Request.
+# def send_request_batch(frequency_list):
+#     url = base_url + "/rf?frequency=" + ','.join(frequency_list)
+#     urllib2.urlopen(url)
 
