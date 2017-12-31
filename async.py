@@ -36,6 +36,8 @@ import json
 import uuid
 import os
 import requests
+with open ("auth.txt") as f:
+    auth = f.read().splitlines()
 
 # constants
 UTC_FORMAT = "%Y-%m-%dT%H:%M:%S.00Z"
@@ -55,8 +57,8 @@ LOGGER.setLevel(logging.DEBUG)
 
 # LWA constants
 CODE = "<code>" # auth code from AcceptGrant directive, update whenever you disable/enable the skill
-CLIENT_ID = "<client id>" # copy from Developer Console
-CLIENT_SECRET = "<client secret>" # copy from Developer Console
+CLIENT_ID = str(auth[0])# copy from Developer Console
+CLIENT_SECRET = str(auth[1]) # copy from Developer Console
 PREEMPTIVE_REFRESH_TTL_IN_SECONDS = 300 # used to preemptively refresh access token if 5 mins from expiry
 
 TOKEN_FILENAME = CODE + ".txt" # everytime a new auth code is used, we store tokens in a new file
