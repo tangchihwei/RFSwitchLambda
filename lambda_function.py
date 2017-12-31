@@ -164,13 +164,4 @@ def handleControl(request):
         'payload': {}
     }
 
-# # Send the HTTP request to Raspberry Pi server
-# def send_request(id, on):
-#     url = base_url + "/rf?frequency=" + RF_MAP[id][on]
-#     urllib2.urlopen(url)
-
-# # Since our Raspberry Pi server support batch, this is the command for sending multiple RF transmitter request in one Http Request.
-# def send_request_batch(frequency_list):
-#     url = base_url + "/rf?frequency=" + ','.join(frequency_list)
-#     urllib2.urlopen(url)
 
